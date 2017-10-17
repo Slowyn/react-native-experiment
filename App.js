@@ -69,50 +69,58 @@ const text =
 const data: ListData = [
   {
     title: 'Test 1',
-    uri:
-      'https://images.pexels.com/photos/207962/pexels-photo-207962.jpeg?h=350&auto=compress&cs=tinysrgb',
+    image: require('./assets/1.jpeg'),
     id: 0,
     text,
   },
   {
     title: 'Test 2',
-    uri:
-      'https://images.pexels.com/photos/169193/pexels-photo-169193.jpeg?h=350&auto=compress&cs=tinysrgb',
+    image: {
+      uri:
+        'https://images.pexels.com/photos/169193/pexels-photo-169193.jpeg?h=350&auto=compress&cs=tinysrgb',
+    },
     id: 1,
     text,
   },
   {
     title: 'Test 3',
-    uri:
-      'https://images.pexels.com/photos/355296/pexels-photo-355296.jpeg?h=350&auto=compress&cs=tinysrgb',
+    image: require('./assets/2.jpeg'),
     id: 2,
     text,
   },
   {
     title: 'Test 4',
-    uri:
-      'https://images.pexels.com/photos/114735/pexels-photo-114735.jpeg?h=350&auto=compress&cs=tinysrgb',
+    image: {
+      uri:
+        'https://images.pexels.com/photos/114735/pexels-photo-114735.jpeg?h=350&auto=compress&cs=tinysrgb',
+    },
     id: 3,
     text,
   },
   {
     title: 'Test 5',
-    uri:
-      'https://images.pexels.com/photos/87452/flowers-background-butterflies-beautiful-87452.jpeg?h=350&auto=compress&cs=tinysrgb',
+    image: {
+      uri:
+        'https://images.pexels.com/photos/87452/flowers-background-butterflies-beautiful-87452.jpeg?h=350&auto=compress&cs=tinysrgb',
+    },
     id: 4,
     text,
   },
   {
     title: 'Test 6',
-    uri:
-      'https://images.pexels.com/photos/88647/pexels-photo-88647.jpeg?h=350&auto=compress&cs=tinysrgb',
+    image: {
+      uri:
+        'https://images.pexels.com/photos/88647/pexels-photo-88647.jpeg?h=350&auto=compress&cs=tinysrgb',
+    },
     id: 5,
     text,
   },
   {
     title: 'Test 7',
-    uri:
-      'https://images.pexels.com/photos/92340/pexels-photo-92340.jpeg?h=350&auto=compress&cs=tinysrgb',
+    image: {
+      uri:
+        'https://images.pexels.com/photos/92340/pexels-photo-92340.jpeg?h=350&auto=compress&cs=tinysrgb',
+    },
     id: 6,
     text,
   },
@@ -121,7 +129,7 @@ const data: ListData = [
 export default class App extends Component<{}> {
   renderItem = ({ item }) => (
     <View style={styles.listElementContainer}>
-      <Image source={{ uri: item.uri }} style={styles.listElementThumbnail} />
+      <Image source={item.image} style={styles.listElementThumbnail} />
       <Text>{item.title}</Text>
     </View>
   );

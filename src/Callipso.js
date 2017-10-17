@@ -22,12 +22,13 @@ const styles = StyleSheet.create({
 });
 
 class Callipso extends Component {
-  items = {};
-  itemsMeasurements = {};
-  currentActiveItem = null;
   state = {
     modalVisible: false,
   };
+  items = {};
+  itemsMeasurements = {};
+  currentActiveItem = null;
+  _imageRef = null;
   _animatedValue = new Animated.Value(0);
   _bodyAnimatedValue = new Animated.Value(0);
 
@@ -40,9 +41,9 @@ class Callipso extends Component {
     setTimeout(() => {
       item.measureInWindow((x, y, width, height) => {
         this.itemsMeasurements[id] = { x, y, width, height };
-        item.setNativeProps({ style: { opacity: 0 } });
         this.currentActiveItem = id;
         this.setState({ modalVisible: true }, () => {
+          item.setNativeProps({ style: { opacity: 0 } });
           Animated.parallel([
             Animated.timing(this._animatedValue, {
               toValue: 1,
@@ -118,26 +119,62 @@ class Callipso extends Component {
     const source = this.items[this.currentActiveItem];
     const layout = this.itemsMeasurements[this.currentActiveItem];
     if (source == null || layout == null) return <View />;
-    const scaleFactor = screenWidth / layout.width;
+
+    const aspectRatio = layout.width / layout.height;
+    const screenAspectRatio = screenWidth / screenHeight;
+    // const scaleFactor = screenWidth / layout.width;
+    const destinationDimension = {
+      width: screenWidth,
+      height: 250,
+      pageX: 0,
+      pageY: 0,
+    };
+    const destRightDimension = {
+      width: screenWidth,
+      height: 250,
+      pageX: 0,
+      pageY: 0,
+    };
+    if (aspectRatio - screenAspectRatio > 0) {
+      destRightDimension.width = aspectRatio * destRightDimension.height;
+      destRightDimension.pageX -= (destRightDimension.width - destinationDimension.width) / 2;
+    } else {
+      destRightDimension.height = destRightDimension.width / aspectRatio;
+      destRightDimension.pageY -= (destRightDimension.height - destinationDimension.height) / 2;
+    }
+    const translateInitX = layout.x + layout.width / 2;
+    const translateInitY = layout.y + layout.height / 2;
+    const translateDestX = destRightDimension.pageX + destRightDimension.width / 2;
+    const translateDestY = destRightDimension.pageY + destRightDimension.height / 2;
+
+    const openingInitTranslateX = translateInitX - translateDestX;
+    const openingInitTranslateY = translateInitY - translateDestY;
+    const openingInitScale = layout.width / destRightDimension.width;
     const scale = this._animatedValue.interpolate({
       inputRange: [0, 1],
-      outputRange: [1, scaleFactor],
+      outputRange: [openingInitScale, 1],
     });
     const translateX = this._animatedValue.interpolate({
       inputRange: [0, 1],
-      outputRange: [layout.x, (layout.width * scaleFactor - layout.width) / 2],
+      outputRange: [openingInitTranslateX, 0],
     });
     const translateY = this._animatedValue.interpolate({
       inputRange: [0, 1],
-      outputRange: [layout.y, (layout.height * scaleFactor - layout.height) / 2],
+      outputRange: [openingInitTranslateY, 0],
     });
-    const opacity = this._bodyAnimatedValue.interpolate({
+    const opacity = this._animatedValue.interpolate({
       inputRange: [0, 1],
       outputRange: [0, 1],
     });
+    const bodyTranslateY = this._animatedValue.interpolate({
+      inputRange: [0, 0.6, 1],
+      outputRange: [400, 400, 250],
+    });
     const imageStyle = {
-      width: layout.width,
-      height: layout.height,
+      width: destRightDimension.width,
+      height: destRightDimension.height,
+      left: destRightDimension.pageX,
+      top: destRightDimension.pageY,
       transform: [
         {
           translateX,
@@ -154,15 +191,19 @@ class Callipso extends Component {
       position: 'absolute',
       left: 0,
       top: 0,
-      height: screenHeight - layout.height * scaleFactor,
+      height: screenHeight - 250,
       width: screenWidth,
-      transform: [{ translateY: layout.height * scaleFactor }],
+      transform: [{ translateY: bodyTranslateY }],
       opacity,
     };
     return (
       <View style={styles.modal}>
         <TouchableWithoutFeedback onPress={this.deactivateItem}>
-          <Animated.Image source={source.props.source} style={imageStyle} />
+          <Animated.Image
+            source={source.props.source}
+            style={imageStyle}
+            ref={node => (this._imageRef = node)}
+          />
         </TouchableWithoutFeedback>
         <Animated.View style={bodyStyle}>
           {this.props.renderItemBody({
