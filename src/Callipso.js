@@ -119,10 +119,8 @@ class Callipso extends Component {
     const source = this.items[this.currentActiveItem];
     const layout = this.itemsMeasurements[this.currentActiveItem];
     if (source == null || layout == null) return <View />;
-
     const aspectRatio = layout.width / layout.height;
     const screenAspectRatio = screenWidth / screenHeight;
-    // const scaleFactor = screenWidth / layout.width;
     const destinationDimension = {
       width: screenWidth,
       height: 250,
@@ -146,7 +144,6 @@ class Callipso extends Component {
     const translateInitY = layout.y + layout.height / 2;
     const translateDestX = destRightDimension.pageX + destRightDimension.width / 2;
     const translateDestY = destRightDimension.pageY + destRightDimension.height / 2;
-
     const openingInitTranslateX = translateInitX - translateDestX;
     const openingInitTranslateY = translateInitY - translateDestY;
     const openingInitScale = layout.width / destRightDimension.width;
@@ -232,7 +229,12 @@ class Callipso extends Component {
     return (
       <Animated.View style={containerStyles}>
         <FlatList {...this.props} renderItem={this._renderItem} />
-        <Modal visible={this.state.modalVisible} animationType="none" transparent>
+        <Modal
+          onRequestClose={this.deactivateItem}
+          visible={this.state.modalVisible}
+          animationType="none"
+          transparent
+        >
           {this.renderModal()}
         </Modal>
       </Animated.View>

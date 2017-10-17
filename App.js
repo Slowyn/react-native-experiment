@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   listElementThumbnail: {
-    width: '40%',
+    width: '50%',
     height: '100%',
     resizeMode: 'cover',
     marginRight: 20,
@@ -146,7 +146,7 @@ export default class App extends Component<{}> {
         <Text style={styles.welcome}>Welcome to React Native!</Text>
         <Text style={styles.instructions}>To get started, edit App.js</Text>
         <Callipso
-          numColumns={2}
+          numColumns={1}
           renderItem={this.renderItem}
           renderItemBody={this.renderItemBody}
           data={data}
