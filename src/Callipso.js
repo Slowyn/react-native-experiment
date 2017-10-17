@@ -29,6 +29,7 @@ class Callipso extends Component {
     modalVisible: false,
   };
   _animatedValue = new Animated.Value(0);
+  _bodyAnimatedValue = new Animated.Value(0);
 
   onItemLayout = (node, id) => {
     this.items[id] = node;
@@ -41,15 +42,37 @@ class Callipso extends Component {
         this.itemsMeasurements[id] = { x, y, width, height };
         item.setNativeProps({ style: { opacity: 0 } });
         this.currentActiveItem = id;
-        this.setState({ modalVisible: true });
+        this.setState({ modalVisible: true }, () => {
+          Animated.parallel([
+            Animated.timing(this._animatedValue, {
+              toValue: 1,
+              duration: 300,
+              useNativeDriver: true,
+            }),
+            Animated.timing(this._bodyAnimatedValue, {
+              toValue: 1,
+              duration: 300,
+              delay: 200,
+              useNativeDriver: true,
+            }),
+          ]).start();
+        });
       });
     }, 0);
   };
   deactivateItem = () => {
-    Animated.timing(this._animatedValue, {
-      toValue: 0,
-      duration: 500,
-    }).start(() => {
+    Animated.parallel([
+      Animated.timing(this._animatedValue, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+      Animated.timing(this._bodyAnimatedValue, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
       const item = this.items[this.currentActiveItem];
       item.setNativeProps({ style: { opacity: 1 } });
       this.currentActiveItem = null;
@@ -108,17 +131,9 @@ class Callipso extends Component {
       inputRange: [0, 1],
       outputRange: [layout.y, (layout.height * scaleFactor - layout.height) / 2],
     });
-    const opacity = this._animatedValue.interpolate({
+    const opacity = this._bodyAnimatedValue.interpolate({
       inputRange: [0, 1],
       outputRange: [0, 1],
-    });
-    const bodyTranslateY = this._animatedValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [layout.y, layout.height * scaleFactor],
-    });
-    const bodyTranslateX = this._animatedValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [-layout.width, 0],
     });
     const imageStyle = {
       width: layout.width,
@@ -141,31 +156,45 @@ class Callipso extends Component {
       top: 0,
       height: screenHeight - layout.height * scaleFactor,
       width: screenWidth,
-      transform: [{ translateY: bodyTranslateY }, { translateX: bodyTranslateX }],
+      transform: [{ translateY: layout.height * scaleFactor }],
       opacity,
-      backgroundColor: 'lime',
     };
-    Animated.timing(this._animatedValue, {
-      toValue: 1,
-      duration: 300,
-    }).start();
     return (
-      <TouchableWithoutFeedback onPress={this.deactivateItem}>
-        <View style={styles.modal}>
+      <View style={styles.modal}>
+        <TouchableWithoutFeedback onPress={this.deactivateItem}>
           <Animated.Image source={source.props.source} style={imageStyle} />
-          <Animated.View style={bodyStyle} />
-        </View>
-      </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback>
+        <Animated.View style={bodyStyle}>
+          {this.props.renderItemBody({
+            item: this.props.data[this.currentActiveItem],
+            index: this.currentActiveItem,
+          })}
+        </Animated.View>
+      </View>
     );
   };
   render() {
+    const containerStyles = {
+      opacity: this._animatedValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: [1, 0.7],
+      }),
+      transform: [
+        {
+          scale: this._animatedValue.interpolate({
+            inputRange: [0, 1],
+            outputRange: [1, 0.9],
+          }),
+        },
+      ],
+    };
     return (
-      <View>
+      <Animated.View style={containerStyles}>
         <FlatList {...this.props} renderItem={this._renderItem} />
         <Modal visible={this.state.modalVisible} animationType="none" transparent>
           {this.renderModal()}
         </Modal>
-      </View>
+      </Animated.View>
     );
   }
 }
