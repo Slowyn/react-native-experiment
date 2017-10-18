@@ -53,7 +53,7 @@ class Callipso extends Component {
   deactivateItem = () => {
     Animated.timing(this._animatedValue, {
       toValue: 0,
-      duration: 500,
+      duration: 300,
       useNativeDriver: true,
     }).start(() => {
       const item = this.items[this.currentActiveItem];
@@ -147,7 +147,7 @@ class Callipso extends Component {
     });
     const bodyTranslateY = this._animatedValue.interpolate({
       inputRange: [0, 0.6, 1],
-      outputRange: [400, 400, 250],
+      outputRange: [300, 250, 0],
     });
     const imageStyle = {
       width: destRightDimension.width,
@@ -169,7 +169,7 @@ class Callipso extends Component {
     const bodyStyle = {
       position: 'absolute',
       left: 0,
-      top: 0,
+      top: 250,
       height: screenHeight - 250,
       width: screenWidth,
       transform: [{ translateY: bodyTranslateY }],
