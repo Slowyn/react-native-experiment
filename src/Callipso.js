@@ -30,7 +30,6 @@ class Callipso extends Component {
   currentActiveItem = null;
   _imageRef = null;
   _animatedValue = new Animated.Value(0);
-  _bodyAnimatedValue = new Animated.Value(0);
 
   onItemLayout = (node, id) => {
     this.items[id] = node;
@@ -38,42 +37,25 @@ class Callipso extends Component {
 
   activateItem = (id) => {
     const item = this.items[id];
-    setTimeout(() => {
-      item.measureInWindow((x, y, width, height) => {
-        this.itemsMeasurements[id] = { x, y, width, height };
-        this.currentActiveItem = id;
-        this.setState({ modalVisible: true }, () => {
-          item.setNativeProps({ style: { opacity: 0 } });
-          Animated.parallel([
-            Animated.timing(this._animatedValue, {
-              toValue: 1,
-              duration: 300,
-              useNativeDriver: true,
-            }),
-            Animated.timing(this._bodyAnimatedValue, {
-              toValue: 1,
-              duration: 300,
-              delay: 200,
-              useNativeDriver: true,
-            }),
-          ]).start();
-        });
+    item.measureInWindow((x, y, width, height) => {
+      this.itemsMeasurements[id] = { x, y, width, height };
+      this.currentActiveItem = id;
+      this.setState({ modalVisible: true }, () => {
+        item.setNativeProps({ style: { opacity: 0 } });
+        Animated.timing(this._animatedValue, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
       });
-    }, 0);
+    });
   };
   deactivateItem = () => {
-    Animated.parallel([
-      Animated.timing(this._animatedValue, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }),
-      Animated.timing(this._bodyAnimatedValue, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
+    Animated.timing(this._animatedValue, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+    }).start(() => {
       const item = this.items[this.currentActiveItem];
       item.setNativeProps({ style: { opacity: 1 } });
       this.currentActiveItem = null;
